@@ -20,18 +20,51 @@ TPostfix::TPostfix(string s)
 		{
 			s[i] = toupper(s[i]);
 		}
+	}
+	for (int i = 0; i < s.length(); i++)
+	{
 		// проверка на допустимые символы
 		if (!(s[i] >= 'A' && s[i] <= 'Z' || s[i] == '(' || s[i] == ')'
-			|| s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/')) throw Invalid_Infix;
+			|| s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/')) 
+			throw Postfix_Exception::Invalid_Infix;
 		if (s[i] == '(')
+		{
 			count1++;
+			// после открывающейся скобки не следует переменная или еще одна скобка
+			if (!(s[i + 1] >= 'A' && s[i + 1] <= 'Z') && s[i + 1] != '(') throw Postfix_Exception::Invalid_Infix;
+		}
+			
 		if (s[i] == ')')
+		{
+			//перед закрывающейся скобки не стоит переменная или еще одна скобка
+			if (!(s[i - 1] >= 'A' && s[i - 1] <= 'Z') && s[i - 1] != ')') throw Postfix_Exception::Invalid_Infix;
 			count2++;
+		}
+			
+		if (s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/')
+		{
+			// после знака операции не следует переменная или открывающаяся скобка
+			if (!(s[i + 1] >= 'A' && s[i + 1] <= 'Z') && s[i + 1] != '(') throw Postfix_Exception::Invalid_Infix;
+			if (s[i] != '-')
+			{
+				// перед знаком операции не следует переменная или закрывающаяся скобка
+				if (!(s[i - 1] >= 'A' && s[i - 1] <= 'Z') && s[i - 1] != ')') throw Postfix_Exception::Invalid_Infix;
+			}
+		}
+
+		if (s[i] >= 'A' && s[i] <= 'Z')
+		{
+			// две переменные подряд
+			if (s[i + 1] >= 'A' && s[i + 1] <= 'Z')
+			{
+				throw Postfix_Exception::Invalid_Infix;
+			}
+		}
 	}
 	// простая проверка на валидность скобок
 	if (count1 != count2)
 	{
-		throw Invalid_Infix;
+		throw Postfix_Exception::Invalid_Infix;
 	}
 	infix = s;
 }
@@ -152,7 +185,7 @@ double TPostfix::Calculate()
 			y = stack.Pop();
 			if (x == 0)
 			{
-				throw Division_By_Zero;
+				throw Postfix_Exception::Division_By_Zero;
 			}
 			Result = y / x;
 			stack.Push(Result);

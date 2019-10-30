@@ -28,14 +28,15 @@ int main()
 		  std::cin.ignore(32767, '\n');
 	  } while (c != 'q');
   }
+
   catch (const Postfix_Exception e)
   {
 	  switch (e)
 	  {
-	  case Invalid_Infix:
+	  case Postfix_Exception::Invalid_Infix:
 		  cout << "Некорректный ввод\n";
 		  goto start;
-	  case Division_By_Zero:
+	  case Postfix_Exception::Division_By_Zero:
 		  cout << "Деление на ноль\n";
 		  std::cin.ignore(32767, '\n');
 		  goto start;

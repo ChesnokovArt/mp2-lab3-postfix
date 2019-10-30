@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum Postfix_Exception
+enum class Postfix_Exception
 {
 	Invalid_Infix,
 	Division_By_Zero

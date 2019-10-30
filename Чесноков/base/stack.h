@@ -1,7 +1,7 @@
 ﻿#ifndef __STACK_H__
 #define __STACK_H__
 
-enum Stack_Exception
+enum class Stack_Exception
 {
 	Invalid_Size,
 	Stack_OverFlow,
@@ -36,7 +36,7 @@ TStack<T>::TStack(int _size)
 	size = _size;
 	top = -1;
 	if ((size < 1) || (size > MaxStackSize))
-		throw Invalid_Size;
+		throw Stack_Exception::Invalid_Size;
 	pMem = new T[size];
 }
 
@@ -56,7 +56,7 @@ TStack<T>::TStack(const TStack<T>& s)
 template<class T>
 void TStack<T>::Push(T a)
 {
-	if (IsFull()) throw Stack_OverFlow;
+	if (IsFull()) throw Stack_Exception::Stack_OverFlow;
 	top++;
 	pMem[top] = a;
 }
@@ -64,7 +64,7 @@ template<class T>
 
 T TStack<T>::Pop()
 {
-	if (IsEmpty()) throw Stack_Empty;
+	if (IsEmpty()) throw Stack_Exception::Stack_Empty;
 	return pMem[top--];
 }
 template<class T>
