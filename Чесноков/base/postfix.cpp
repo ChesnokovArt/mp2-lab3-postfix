@@ -3,6 +3,26 @@
 #include <algorithm>
 #include <iostream>
 
+int charToInt(const char& c)
+{
+	return c - '0';
+}
+
+bool charIsVar(const char& c)
+{
+	return (c >= 'A' && c <= 'Z');
+}
+
+bool charIsDigit(const char& c)
+{
+	return (c >= '0' && c <= '9');
+}
+
+bool charIsVarOrDigit(const char& c)
+{
+	return charIsDigit(c) || charIsVar(c);
+}
+
 TPostfix::TPostfix()
 {
 }
@@ -24,31 +44,31 @@ TPostfix::TPostfix(string s)
 	for (int i = 0; i < s.length(); i++)
 	{
 		// проверка на допустимые символы
-		if (!(s[i] >= 'A' && s[i] <= 'Z' || s[i] == '(' || s[i] == ')'
+		if (!(charIsVarOrDigit(s[i]) || s[i] == '(' || s[i] == ')'
 			|| s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/')) 
 			throw Postfix_Exception::Invalid_Infix;
 		if (s[i] == '(')
 		{
 			count1++;
 			// после открывающейся скобки не следует переменная или еще одна скобка
-			if (!(s[i + 1] >= 'A' && s[i + 1] <= 'Z') && s[i + 1] != '(') throw Postfix_Exception::Invalid_Infix;
+			if (!(charIsVarOrDigit(s[i+1])) && s[i + 1] != '(') throw Postfix_Exception::Invalid_Infix;
 		}
 			
 		if (s[i] == ')')
 		{
 			//перед закрывающейся скобки не стоит переменная или еще одна скобка
-			if (!(s[i - 1] >= 'A' && s[i - 1] <= 'Z') && s[i - 1] != ')') throw Postfix_Exception::Invalid_Infix;
+			if (!(charIsVarOrDigit(s[i - 1])) && s[i - 1] != ')') throw Postfix_Exception::Invalid_Infix;
 			count2++;
 		}
 			
 		if (s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/')
 		{
 			// после знака операции не следует переменная или открывающаяся скобка
-			if (!(s[i + 1] >= 'A' && s[i + 1] <= 'Z') && s[i + 1] != '(') throw Postfix_Exception::Invalid_Infix;
+			if (!(charIsVarOrDigit(s[i + 1])) && s[i + 1] != '(') throw Postfix_Exception::Invalid_Infix;
 			if (s[i] != '-')
 			{
 				// перед знаком операции не следует переменная или закрывающаяся скобка
-				if (!(s[i - 1] >= 'A' && s[i - 1] <= 'Z') && s[i - 1] != ')') throw Postfix_Exception::Invalid_Infix;
+				if (!(charIsVarOrDigit(s[i - 1])) && s[i - 1] != ')') throw Postfix_Exception::Invalid_Infix;
 			}
 		}
 
@@ -78,7 +98,7 @@ string TPostfix::ToPostfix()
 	int m = infix.length();
 	for (int i = 0; i < m; i++)
 	{
-		if ((infix[i] >= 'A') && (infix[i] <= 'Z'))
+		if (charIsVarOrDigit(infix[i]))
 		{
 			stack1.Push(infix[i]);
 			continue;
@@ -154,9 +174,20 @@ double TPostfix::Calculate()
 	double x, y, Result;
 	for (int i = 0; i < m; i++)
 	{
-		if ((postfix[i] >= 'A') && (postfix[i] <= 'Z'))
+		if (charIsVar(postfix[i]))
 		{
 			stack.Push(values[postfix[i]]);
+		}
+		if (charIsDigit(postfix[i]))
+		{
+			int tmp = charToInt(postfix[i]);
+			while (charIsDigit(postfix[i + 1]))
+			{
+				i++;
+				tmp *= 10;
+				tmp += charToInt(postfix[i]);
+			}
+			stack.Push(tmp);
 		}
 		if (postfix[i] == '+')
 		{
@@ -167,10 +198,14 @@ double TPostfix::Calculate()
 		}
 		if (postfix[i] == '-')
 		{
-			x = stack.Pop();
-			y = stack.Pop();
-			Result = y - x;
-			stack.Push(Result);
+			if (i == 1) stack.Push(-stack.Pop()); 
+			else
+			{
+				x = stack.Pop();
+				y = stack.Pop();
+				Result = y - x;
+				stack.Push(Result);
+			}	
 		}
 		if (postfix[i] == '*')
 		{
@@ -237,3 +272,4 @@ map<char, double> TPostfix::read_vars()
 	}
 	return values;
 }
+
